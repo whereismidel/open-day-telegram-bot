@@ -1,0 +1,24 @@
+{
+  "properties": [
+    {
+      "name": "bot.username",
+      "type": "java.lang.String",
+      "description": "Description for bot.username."
+    },
+    {
+      "name": "bot.token",
+      "type": "java.lang.String",
+      "description": "Description for bot.token."
+    },
+    {
+      "name": "bot.admins",
+      "type": "java.util.List",
+      "description": "Description for bot.admins."
+    },
+    {
+      "name": "bot.destination-chat",
+      "type": "java.lang.Long",
+      "description": "Description for bot.destination-chat."
+    }
+  ]
+}
