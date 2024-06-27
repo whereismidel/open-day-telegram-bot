@@ -16,7 +16,4 @@ public class InlineController {
     @Value("${bot.admins}")
     private List<Long> adminList;
 
-    @Value("${bot.destination-chat}")
-    private Long conferenceChatId;
-
 }
