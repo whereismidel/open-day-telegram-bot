@@ -13,7 +13,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
-import org.springframework.beans.factory.annotation.Value;
 import org.telegram.telegrambots.meta.api.objects.InputFile;
 import org.telegram.telegrambots.meta.api.objects.Update;
 
@@ -35,9 +34,6 @@ public class CommandController {
 
     private final TelegramSender telegramSender;
     private final UserRepository userRepository;
-
-    @Value("${bot.admins}")
-    private List<Long> adminList;
 
 
     @Handle(value = Action.COMMAND, command = "start")
@@ -104,7 +100,7 @@ public class CommandController {
 
             // Create header row
             Row headerRow = sheet.createRow(0);
-            String[] headers = {"Учасник", "Телефон", "Спеціальність", "Телеграм", "Зареєстрований"};
+            String[] headers = {"Учасник", "Телефон", "Спеціальність", "Телеграм", "Зареєстрований", "Telegram ID"};
             for (int i = 0; i < headers.length; i++) {
                 Cell cell = headerRow.createCell(i);
                 cell.setCellValue(headers[i]);
@@ -114,12 +110,19 @@ public class CommandController {
 
             // Create data rows
             int rowCount = 1;
-            DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm:ss"); // Формат дати
             CreationHelper creationHelper = workbook.getCreationHelper();
             CellStyle dateCellStyle = workbook.createCellStyle();
             dateCellStyle.setDataFormat(creationHelper.createDataFormat().getFormat("dd.MM.yyyy HH:mm:ss"));
 
             for (User user : userList) {
+                if (arguments != null
+                        && arguments.size() == 1
+                        && arguments.getFirst().equalsIgnoreCase("hide")
+                        && user.getState().equals(State.HIDE)
+                ) {
+                    continue;
+                }
+
                 Row row = sheet.createRow(rowCount++);
                 row.createCell(0).setCellValue(user.getFullName());
                 row.createCell(1).setCellValue(user.getPhoneNumber());
@@ -129,6 +132,8 @@ public class CommandController {
                 Cell dateCell = row.createCell(4);
                 dateCell.setCellValue(user.getRegisteredAt().atZone(ZoneId.of("Europe/Kiev")).toLocalDateTime());
                 dateCell.setCellStyle(dateCellStyle);
+
+                row.createCell(5).setCellValue(user.getId());
             }
 
             // Write the output to a ByteArrayOutputStream
@@ -148,6 +153,45 @@ public class CommandController {
         }
     }
 
+
+    @Handle(value = Action.COMMAND, command = "hide")
+    @AdminAction
+    public void hideCommand(List<String> arguments, Update update) {
+
+        if (arguments == null || arguments.size() != 1) {
+            telegramSender.htmlMessage(update.getMessage().getChatId(),
+                    """
+                        Використання:
+                        /hide userId
+                        """);
+            return;
+        }
+
+        long userId;
+        try {
+            userId = Long.parseLong(arguments.getFirst());
+        } catch (Exception e) {
+            telegramSender.htmlMessage(update.getMessage().getChatId(),
+                    """
+                        Використання:
+                        /hide userId
+                        """);
+            return;
+        }
+        User user = userRepository.getUserById(userId).orElse(null);
+
+        if (user == null) {
+            telegramSender.htmlMessage(update.getMessage().getChatId(),
+                    """
+                        User not found.
+                        """);
+            return;
+        }
+
+        user.setState(State.HIDE);
+        userRepository.save(user);
+
+    }
 
     @Handle(value = Action.COMMAND, command = "not_found")
     @AdminAction
@@ -184,18 +228,21 @@ public class CommandController {
                                 .map(word -> Character.toUpperCase(word.charAt(0)) + word.substring(1).toLowerCase())
                                 .collect(java.util.stream.Collectors.joining(" "))
                     );
-                    yield State.PHONE;
-                }
-                case PHONE -> {
-                    user.setPhoneNumber(userInput);
                     yield State.SPECIALTY;
                 }
                 case SPECIALTY -> {
                     user.setSpeciality(userInput);
                     telegramSender.htmlMessage(update.getMessage().getChatId(), "<b>Дякуємо за реєстрацію!</b>");
+                    yield State.PHONE;
+                }
+                case PHONE -> {
+                    user.setPhoneNumber(userInput);
                     yield State.REGISTERED;
                 }
+
                 case REGISTERED -> State.REGISTERED;
+                case HIDE -> State.HIDE;
+
             }
         );
 
@@ -238,7 +285,7 @@ public class CommandController {
                         """;
                 telegramSender.htmlForceReplyMessage(update.getMessage().getChatId(), message);
             }
-            case REGISTERED -> {
+            case REGISTERED, HIDE  -> {
                 message = """
                         <b>Приходь <u>5 липня о 12:00</u> на NAU Open Day. Ти дізнаєшся:</b>
                         
