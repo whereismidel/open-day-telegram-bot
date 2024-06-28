@@ -36,6 +36,9 @@ public class User {
     @Column(name = "status", nullable = false)
     private State state;
 
+    @Column(name = "hidden")
+    private boolean hidden;
+
     @Column(name = "registered_at", columnDefinition = "TIMESTAMP WITH TIME ZONE", nullable = false)
     @CreationTimestamp
     private LocalDateTime registeredAt;

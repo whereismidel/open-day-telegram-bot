@@ -20,7 +20,6 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.time.ZoneId;
-import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.Executors;
@@ -48,6 +47,7 @@ public class CommandController {
                     .id(update.getMessage().getFrom().getId())
                     .state(State.NAME)
                     .username(update.getMessage().getFrom().getUserName())
+                    .hidden(false)
                     .build();
 
             user = userRepository.save(user);
@@ -118,7 +118,7 @@ public class CommandController {
                 if (arguments != null
                         && arguments.size() == 1
                         && arguments.getFirst().equalsIgnoreCase("hide")
-                        && user.getState().equals(State.HIDE)
+                        && user.isHidden()
                 ) {
                     continue;
                 }
@@ -188,7 +188,7 @@ public class CommandController {
             return;
         }
 
-        user.setState(State.HIDE);
+        user.setHidden(!user.isHidden());
         userRepository.save(user);
 
     }
@@ -241,7 +241,7 @@ public class CommandController {
                 }
 
                 case REGISTERED -> State.REGISTERED;
-                case HIDE -> State.HIDE;
+//                case HIDE -> State.HIDE;
 
             }
         );
@@ -285,7 +285,7 @@ public class CommandController {
                         """;
                 telegramSender.htmlForceReplyMessage(update.getMessage().getChatId(), message);
             }
-            case REGISTERED, HIDE  -> {
+            case REGISTERED  -> {
                 message = """
                         <b>Приходь <u>5 липня о 12:00</u> на NAU Open Day. Ти дізнаєшся:</b>
                         

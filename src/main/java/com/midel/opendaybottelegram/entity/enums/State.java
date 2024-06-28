@@ -2,6 +2,6 @@ package com.midel.opendaybottelegram.entity.enums;
 
 public enum State {
 
-    NAME, SURNAME, PHONE, SPECIALTY, REGISTERED, HIDE
+    NAME, SURNAME, PHONE, SPECIALTY, REGISTERED
 
 }
