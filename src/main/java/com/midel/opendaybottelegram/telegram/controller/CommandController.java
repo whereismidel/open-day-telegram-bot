@@ -47,7 +47,7 @@ public class CommandController {
                     .id(update.getMessage().getFrom().getId())
                     .state(State.NAME)
                     .username(update.getMessage().getFrom().getUserName())
-                    .hidden(false)
+//                    .hidden(false)
                     .build();
 
             user = userRepository.save(user);
@@ -115,13 +115,13 @@ public class CommandController {
             dateCellStyle.setDataFormat(creationHelper.createDataFormat().getFormat("dd.MM.yyyy HH:mm:ss"));
 
             for (User user : userList) {
-                if (arguments != null
-                        && arguments.size() == 1
-                        && arguments.getFirst().equalsIgnoreCase("hide")
-                        && user.isHidden()
-                ) {
-                    continue;
-                }
+//                if (arguments != null
+//                        && arguments.size() == 1
+//                        && arguments.getFirst().equalsIgnoreCase("hide")
+//                        && user.isHidden()
+//                ) {
+//                    continue;
+//                }
 
                 Row row = sheet.createRow(rowCount++);
                 row.createCell(0).setCellValue(user.getFullName());
@@ -188,7 +188,7 @@ public class CommandController {
             return;
         }
 
-        user.setHidden(!user.isHidden());
+//        user.setHidden(!user.isHidden());
         userRepository.save(user);
 
     }
