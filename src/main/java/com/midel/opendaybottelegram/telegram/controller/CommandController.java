@@ -188,8 +188,7 @@ public class CommandController {
             return;
         }
 
-//        user.setHidden(!user.isHidden());
-        userRepository.save(user);
+//        userRepository.delete(user);
 
     }
 
@@ -273,7 +272,8 @@ public class CommandController {
                 message = """
                         Вкажи свій <u><b>номер телефону.</b></u>.
                         
-                        <i>*скористайтесь кнопкою нижче</i>
+                        <i>*відміть це повідомлення</i>
+                        <i>та скористайся кнопкою нижче</i>
                         """;
                 telegramSender.requestContact(update.getMessage().getChatId(), message);
             }

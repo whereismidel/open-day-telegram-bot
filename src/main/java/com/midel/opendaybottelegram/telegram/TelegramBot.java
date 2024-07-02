@@ -67,12 +67,12 @@ public class TelegramBot extends TelegramLongPollingBot {
     private void handleMessage(Update update) {
         Message message = update.getMessage();
 
-
         String text;
         if (message.hasText()) {
-             text = message.getText().trim();
+            text = message.getText().trim();
         } else if (message.hasContact()) {
             text = message.getContact().getPhoneNumber();
+            message.setText(text);
         } else {
             telegramHandler.getResult(Action.COMMAND, Command.CommandIdentifier.START.getName(), null, update);
             return;
@@ -162,9 +162,9 @@ public class TelegramBot extends TelegramLongPollingBot {
         }
 
         if (message.getChat().getType().equals("private")) {
-            log.info("{}from user @{}(id={}): {}", prefix, from.getUserName(), from.getId(), text);
+            log.info("{}from user @{}(id={}): {}\n{}", prefix, from.getUserName(), from.getId(), text, update);
         } else {
-            log.info("{}from group \"{}\"(id={}), user @{}(id={}): {}", prefix, message.getChat().getTitle(), message.getChat().getId(), from.getUserName(), from.getId(), text);
+            log.info("{}from group \"{}\"(id={}), user @{}(id={}): {}\n{}", prefix, message.getChat().getTitle(), message.getChat().getId(), from.getUserName(), from.getId(), text, update);
         }
     }
 
