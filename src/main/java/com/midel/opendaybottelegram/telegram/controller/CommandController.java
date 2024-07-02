@@ -231,11 +231,11 @@ public class CommandController {
                 }
                 case SPECIALTY -> {
                     user.setSpeciality(userInput);
-                    telegramSender.htmlMessage(update.getMessage().getChatId(), "<b>Дякуємо за реєстрацію!</b>");
                     yield State.PHONE;
                 }
                 case PHONE -> {
                     user.setPhoneNumber(userInput);
+                    telegramSender.htmlMessage(update.getMessage().getChatId(), "<b>Дякуємо за реєстрацію!</b>");
                     yield State.REGISTERED;
                 }
 
@@ -268,15 +268,6 @@ public class CommandController {
                         """;
                 telegramSender.htmlForceReplyMessage(update.getMessage().getChatId(), message);
             }
-            case PHONE -> {
-                message = """
-                        Вкажи свій <u><b>номер телефону.</b></u>.
-                        
-                        <i>*відміть це повідомлення</i>
-                        <i>та скористайся кнопкою нижче</i>
-                        """;
-                telegramSender.requestContact(update.getMessage().getChatId(), message);
-            }
             case SPECIALTY -> {
                 message = """
                         Напиши <u><b>спеціальність</b></u> на яку плануєш вступати.
@@ -284,6 +275,15 @@ public class CommandController {
                         <i>*у відповідь на це повідомлення</i>
                         """;
                 telegramSender.htmlForceReplyMessage(update.getMessage().getChatId(), message);
+            }
+            case PHONE -> {
+                message = """
+                        Вкажи свій <u><b>номер телефону.</b></u>.
+                        
+                        <i>*Відміть це повідомлення та напиши вручну</i>
+                        <i>*Або скористайся кнопкою нижче</i>
+                        """;
+                telegramSender.requestContact(update.getMessage().getChatId(), message);
             }
             case REGISTERED  -> {
                 message = """
