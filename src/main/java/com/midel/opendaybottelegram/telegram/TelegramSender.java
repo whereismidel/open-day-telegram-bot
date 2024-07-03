@@ -10,6 +10,7 @@ import org.telegram.telegrambots.meta.api.methods.send.SendDocument;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.methods.updatingmessages.DeleteMessage;
 import org.telegram.telegrambots.meta.api.objects.InputFile;
+import org.telegram.telegrambots.meta.api.objects.LinkPreviewOptions;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.ForceReplyKeyboard;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboardMarkup;
@@ -48,6 +49,21 @@ public class TelegramSender {
         ForceReplyKeyboard force = new ForceReplyKeyboard();
         force.setForceReply(true);
         sendMessage.setReplyMarkup(force);
+
+        return (Integer) send(sendMessage);
+    }
+
+    public Integer htmlMessageWithBottomPhoto(Long chatId, String text, String link) {
+
+        SendMessage sendMessage = new SendMessage();
+        sendMessage.setChatId(chatId);
+        sendMessage.setText(text);
+
+        LinkPreviewOptions linkPreviewOptions = new LinkPreviewOptions();
+        linkPreviewOptions.setUrlField(link);
+        sendMessage.setLinkPreviewOptions(linkPreviewOptions);
+
+        sendMessage.enableHtml(true);
 
         return (Integer) send(sendMessage);
     }
